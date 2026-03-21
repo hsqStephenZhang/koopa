@@ -299,6 +299,19 @@ impl DataFlowGraph {
     self.bbs.get_mut(&bb).expect("`bb` does not exist")
   }
 
+  /// Appends a parameter to the given basic block, returning the parameter value handle.
+  ///
+  /// # Panics
+  ///
+  /// Panics if the given basic block does not exist, or the parameter type is unit.
+  pub fn append_bb_param(&mut self, bb: BasicBlock, ty: crate::ir::Type) -> Value {
+    assert!(!ty.is_unit(), "parameter type must not be `unit`!");
+    let index = self.bb(bb).params().len();
+    let value = self.new_value_data(crate::ir::values::BlockArgRef::new_data(index, ty));
+    self.bb_mut(bb).params_mut().push(value);
+    value
+  }
+
   /// Returns a reference to the basic block map.
   pub fn bbs(&self) -> &HashMap<BasicBlock, BasicBlockData> {
     &self.bbs
